@@ -139,13 +139,16 @@ if IS_SQLITE:
                 conn.execute(text("ALTER TABLE reports ADD COLUMN status TEXT NOT NULL DEFAULT 'pending'"))
 
 # アップロードディレクトリを静的配信します。
+# アップロードディレクトリを静的配信します。
 app = FastAPI(title="GachaGacha Exchange API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5500",
         "http://127.0.0.1:5500",
-        "https://gacha-app-brown.vercel.app"  # ← ★ここをご自身の実際のVercelのURL（末尾のスラッシュ / は無し）に書き換えてください！
+        "https://gacha-app-brown.vercel.app",
+        "https://gacha-exchange.com",        # ← これを追加
+        "https://www.gacha-exchange.com"     # ← これも追加
     ],
     allow_credentials=True,
     allow_methods=["*"],
