@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>管理画面 - ガチャ交換広場</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body class="bg-gray-100 min-h-screen text-gray-900">
+
+  <div id="login-area" class="min-h-screen flex items-center justify-center">
+    <div class="bg-white rounded-lg shadow-md p-8 w-[90%] max-w-sm text-center">
+      <h1 class="text-xl font-bold mb-4">管理画面ログイン</h1>
+      <p class="text-sm text-gray-500 mb-6">管理者権限を持つGoogleアカウントでログインしてください。</p>
+      <button id="login-btn" class="w-full bg-red-600 text-white rounded-full px-4 py-3 font-semibold hover:bg-red-700">
+        <i class="fa-brands fa-google"></i> Googleでログイン
+      </button>
+      <p id="login-error" class="text-xs text-red-500 mt-4 hidden"></p>
+    </div>
+  </div>
+
+  <div id="admin-area" class="hidden min-h-screen flex">
+    <aside class="w-56 bg-gray-900 text-gray-200 flex flex-col">
+      <div class="p-4 border-b border-gray-700">
+        <h1 class="text-lg font-bold text-white">管理画面</h1>
+        <p id="admin-name" class="text-xs text-gray-400 mt-1 truncate"></p>
+      </div>
+      <nav class="flex-1 p-2 space-y-1">
+        <button data-tab="dashboard" class="admin-tab-btn bg-gray-800 w-full text-left px-3 py-2 rounded-lg hover:bg-gray-800 flex items-center gap-2">
+          <i class="fa-solid fa-chart-pie w-4"></i> ダッシュボード
+        </button>
+        <button data-tab="reports" class="admin-tab-btn w-full text-left px-3 py-2 rounded-lg hover:bg-gray-800 flex items-center gap-2">
+          <i class="fa-solid fa-flag w-4"></i> 通報管理
+        </button>
+        <button data-tab="users" class="admin-tab-btn w-full text-left px-3 py-2 rounded-lg hover:bg-gray-800 flex items-center gap-2">
+          <i class="fa-solid fa-users w-4"></i> ユーザー管理
+        </button>
+        <button data-tab="notifications" class="admin-tab-btn w-full text-left px-3 py-2 rounded-lg hover:bg-gray-800 flex items-center gap-2">
+          <i class="fa-solid fa-bullhorn w-4"></i> お知らせ配信
+        </button>
+        <button data-tab="items" class="admin-tab-btn w-full text-left px-3 py-2 rounded-lg hover:bg-gray-800 flex items-center gap-2">
+          <i class="fa-solid fa-box w-4"></i> アイテム管理
+        </button>
+      </nav>
+      <div class="p-2 border-t border-gray-700">
+        <button id="logout-btn" class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-800 flex items-center gap-2 text-sm text-gray-400">
+          <i class="fa-solid fa-arrow-right-from-bracket w-4"></i> ログアウト
+        </button>
+      </div>
+    </aside>
+
+    <main class="flex-1 p-6 overflow-y-auto">
+
+      <section id="tab-dashboard" class="admin-tab-section">
+        <h2 class="text-xl font-bold mb-4">ダッシュボード (KPI)</h2>
+        <div id="stats-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="col-span-full text-center text-gray-400 py-6">読み込み中...</div>
+        </div>
+      </section>
+
+      <section id="tab-reports" class="admin-tab-section hidden">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold">通報管理</h2>
+          <select id="report-status-filter" class="border rounded px-3 py-2 text-sm">
+            <option value="">すべて</option>
+            <option value="pending">未対応</option>
+            <option value="resolved">対応済み</option>
+            <option value="rejected">対応不要</option>
+          </select>
+        </div>
+        <div id="reports-list" class="space-y-3">
+          <div class="text-gray-400 text-sm">読み込み中...</div>
+        </div>
+      </section>
+
+      <section id="tab-users" class="admin-tab-section hidden">
+        <h2 class="text-xl font-bold mb-4">ユーザー管理</h2>
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-gray-600">
+              <tr>
+                <th class="text-left px-4 py-3">名前</th>
+                <th class="text-left px-4 py-3">都道府県</th>
+                <th class="text-left px-4 py-3">権限</th>
+                <th class="text-left px-4 py-3">状態</th>
+                <th class="text-left px-4 py-3">操作</th>
+              </tr>
+            </thead>
+            <tbody id="users-list">
+              <tr><td colspan="5" class="px-4 py-6 text-center text-gray-400">読み込み中...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="tab-notifications" class="admin-tab-section hidden">
+        <h2 class="text-xl font-bold mb-4">全体お知らせ配信</h2>
+        <div class="bg-white p-6 rounded-lg shadow-sm max-w-xl">
+          <p class="text-sm text-gray-500 mb-5">ここで送信した内容は、全ユーザーの通知センターに「お知らせ」として届きます。</p>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">タイトル</label>
+            <input type="text" id="notif-title" class="w-full border rounded px-3 py-2" placeholder="例：システムメンテナンスのお知らせ">
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">本文</label>
+            <textarea id="notif-message" rows="5" class="w-full border rounded px-3 py-2" placeholder="お知らせの内容を入力してください..."></textarea>
+          </div>
+          <button id="notif-submit-btn" class="w-full bg-blue-600 text-white px-4 py-3 rounded font-bold hover:bg-blue-700">全ユーザーに一括送信する</button>
+        </div>
+      </section>
+
+      <section id="tab-items" class="admin-tab-section hidden">
+        <h2 class="text-xl font-bold mb-4">アイテム管理（強制削除）</h2>
+        <p class="text-sm text-gray-500 mb-4">アイテムの強制削除は、証拠保全とトラブル防止のため「通報管理」タブから行ってください。</p>
+        <div class="bg-white rounded-lg shadow-sm p-6 text-center text-gray-400">
+          アイテムの強制削除は「通報管理」タブの各通報カードから実行できます。
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div id="chat-modal" class="hidden fixed inset-0 z-50 items-center justify-center">
+    <div class="absolute inset-0 bg-black/60" onclick="window.closeAdminChatModal()"></div>
+    <div class="relative bg-white rounded-lg shadow-xl max-w-lg w-[95%] mx-auto z-10 overflow-hidden h-[80vh] flex flex-col">
+      <div class="p-3 border-b flex items-center justify-between">
+        <div class="font-bold text-red-600"><i class="fa-solid fa-shield-halved"></i> 運営用・チャットログ閲覧</div>
+        <button onclick="window.closeAdminChatModal()" class="text-gray-600 hover:text-gray-800"><i class="fa-solid fa-xmark fa-lg"></i></button>
+      </div>
+      <div id="admin-chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 text-sm">
+        読み込み中...
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA0a0VvIXGNC5z5AZf9cxwRntct_vElPZU",
+      authDomain: "gacha-exchange.firebaseapp.com",
+      projectId: "gacha-exchange",
+      storageBucket: "gacha-exchange.firebasestorage.app",
+      messagingSenderId: "843866663760",
+      appId: "1:843866663760:web:b20e7f3dc0e7bfbe74da55"
+    };
+    const firebaseApp = initializeApp(firebaseConfig);
+    const auth = getAuth(firebaseApp);
+    const provider = new GoogleAuthProvider();
+
+    const apiBase = "https://gacha-app-9xkq.onrender.com";
+
+    // 認証トークンを付与する共通fetchラッパー
+    async function fetchWithAuth(path, options = {}) {
+      const user = auth.currentUser;
+      const headers = options.headers ? { ...options.headers } : {};
+      if (user) {
+        const token = await user.getIdToken();
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+      return fetch(`${apiBase}${path}`, { ...options, headers });
+    }
+
+    document.getElementById("login-btn").addEventListener("click", async () => {
+      const errEl = document.getElementById("login-error");
+      errEl.classList.add("hidden");
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (err) {
+        errEl.textContent = "ログインに失敗しました: " + (err.message || err);
+        errEl.classList.remove("hidden");
+      }
+    });
+
+    document.getElementById("logout-btn").addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.reload();
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      const loginArea = document.getElementById("login-area");
+      const adminArea = document.getElementById("admin-area");
+      const errEl = document.getElementById("login-error");
+
+      if (!user) {
+        loginArea.classList.remove("hidden");
+        adminArea.classList.add("hidden");
+        return;
+      }
+
+      // 管理者権限の確認を兼ねてKPIダッシュボードを叩く
+      try {
+        const res = await fetchWithAuth("/admin/stats");
+        if (res.status === 403) {
+          errEl.textContent = "このアカウントには管理者権限がありません。";
+          errEl.classList.remove("hidden");
+          loginArea.classList.remove("hidden");
+          adminArea.classList.add("hidden");
+          await signOut(auth);
+          return;
+        }
+        if (!res.ok) throw new Error("管理者権限の確認に失敗しました");
+
+        document.getElementById("admin-name").textContent = user.displayName || user.email || "";
+        loginArea.classList.add("hidden");
+        adminArea.classList.remove("hidden");
+
+        // 初期表示をダッシュボードにする
+        loadStats(); 
+      } catch (err) {
+        errEl.textContent = err.message || "エラーが発生しました";
+        errEl.classList.remove("hidden");
+        loginArea.classList.remove("hidden");
+        adminArea.classList.add("hidden");
+      }
+    });
+
+    // ==========================================
+    // タブ切り替え
+    // ==========================================
+    document.querySelectorAll(".admin-tab-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".admin-tab-btn").forEach((b) => b.classList.remove("bg-gray-800"));
+        btn.classList.add("bg-gray-800");
+        const tab = btn.getAttribute("data-tab");
+        document.querySelectorAll(".admin-tab-section").forEach((sec) => sec.classList.add("hidden"));
+        document.getElementById(`tab-${tab}`).classList.remove("hidden");
+        
+        // タブに応じたデータ読み込み
+        if (tab === "dashboard") loadStats();
+        if (tab === "reports") loadReports();
+        if (tab === "users") loadUsers();
+      });
+    });
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+    }
+
+    // ==========================================
+    // 【New】ダッシュボード (KPI)
+    // ==========================================
+    async function loadStats() {
+      const wrap = document.getElementById("stats-grid");
+      wrap.innerHTML = '<div class="col-span-full text-center text-gray-400 py-6">読み込み中...</div>';
+      try {
+        const res = await fetchWithAuth("/admin/stats");
+        if (!res.ok) throw new Error("統計データの取得に失敗しました");
+        const stats = await res.json();
+        
+        wrap.innerHTML = `
+          <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-blue-500">
+            <div class="text-gray-500 text-xs font-bold mb-1 uppercase tracking-wider">総ユーザー数</div>
+            <div class="text-3xl font-bold">${stats.total_users} <span class="text-sm font-normal text-gray-500">人</span></div>
+          </div>
+          <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-500">
+            <div class="text-gray-500 text-xs font-bold mb-1 uppercase tracking-wider">出品中のアイテム</div>
+            <div class="text-3xl font-bold">${stats.total_active_items} <span class="text-sm font-normal text-gray-500">件</span></div>
+          </div>
+          <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-purple-500">
+            <div class="text-gray-500 text-xs font-bold mb-1 uppercase tracking-wider">成立した取引</div>
+            <div class="text-3xl font-bold">${stats.completed_trades} <span class="text-sm font-normal text-gray-500">件</span></div>
+          </div>
+          <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-red-500">
+            <div class="text-gray-500 text-xs font-bold mb-1 uppercase tracking-wider">本日の通報数</div>
+            <div class="text-3xl font-bold">${stats.reports_today} <span class="text-sm font-normal text-gray-500">件</span></div>
+          </div>
+        `;
+      } catch (err) {
+        wrap.innerHTML = `<div class="col-span-full text-center text-red-500 py-6">${escapeHtml(err.message)}</div>`;
+      }
+    }
+
+    // ==========================================
+    // 通報管理 & 【New】チャット閲覧
+    // ==========================================
+    async function loadReports() {
+      const statusFilter = document.getElementById("report-status-filter").value;
+      const wrap = document.getElementById("reports-list");
+      wrap.innerHTML = '<div class="text-gray-400 text-sm">読み込み中...</div>';
+      try {
+        const query = statusFilter ? `?status=${encodeURIComponent(statusFilter)}` : "";
+        const res = await fetchWithAuth(`/admin/reports${query}`);
+        if (!res.ok) throw new Error("通報一覧の取得に失敗しました");
+        const reports = await res.json();
+        renderReports(reports);
+      } catch (err) {
+        wrap.innerHTML = `<div class="text-red-500 text-sm">${escapeHtml(err.message)}</div>`;
+      }
+    }
+    document.getElementById("report-status-filter").addEventListener("change", loadReports);
+
+    function renderReports(reports) {
+      const wrap = document.getElementById("reports-list");
+      if (!reports.length) {
+        wrap.innerHTML = '<div class="text-gray-400 text-sm">該当する通報はありません。</div>';
+        return;
+      }
+      const statusLabel = (s) => s === "pending" ? "未対応" : s === "resolved" ? "対応済み" : s === "rejected" ? "対応不要" : escapeHtml(s);
+      const statusColor = (s) => s === "pending" ? "bg-yellow-100 text-yellow-800" : s === "resolved" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-700";
+
+      wrap.innerHTML = reports.map((r) => {
+        // 対象アイテムに紐づく取引（Trade）があれば「チャット閲覧ボタン」を出す
+        const chatBtnHtml = r.related_trade_id 
+          ? `<button class="report-chat-btn bg-blue-600 text-white text-xs px-3 py-2 rounded whitespace-nowrap shadow-sm hover:bg-blue-700" data-trade-id="${escapeHtml(r.related_trade_id)}"><i class="fa-solid fa-comment-dots"></i> チャットを閲覧</button>` 
+          : '';
+
+        return `
+        <div class="bg-white rounded-lg shadow-sm p-4 flex flex-col sm:flex-row items-start justify-between gap-4 border-l-4 ${r.status === 'pending' ? 'border-yellow-400' : 'border-transparent'}">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-xs font-bold px-2 py-1 rounded-sm ${statusColor(r.status)}">${statusLabel(r.status)}</span>
+              <span class="text-xs text-gray-400">${new Date(r.created_at).toLocaleString("ja-JP")}</span>
+            </div>
+            <div class="text-sm font-bold text-gray-800 mb-1">対象アイテム: ${escapeHtml(r.reported_item_series_name || "不明")} / ${escapeHtml(r.reported_item_character_name || "不明")}</div>
+            <div class="text-xs text-gray-500 mb-3">通報者: ${escapeHtml(r.reporter_name || r.reporter_id)}</div>
+            <div class="text-sm text-gray-700 bg-gray-50 p-3 rounded border whitespace-pre-wrap break-words">${escapeHtml(r.reason)}</div>
+          </div>
+          <div class="flex sm:flex-col gap-2 flex-wrap w-full sm:w-auto">
+            ${chatBtnHtml}
+            <button class="report-resolve-btn bg-green-600 text-white text-xs px-3 py-2 rounded whitespace-nowrap hover:bg-green-700" data-id="${escapeHtml(r.id)}" data-status="resolved">対応済みにする</button>
+            <button class="report-reject-btn bg-gray-200 text-gray-700 text-xs px-3 py-2 rounded whitespace-nowrap hover:bg-gray-300" data-id="${escapeHtml(r.id)}" data-status="rejected">対応不要にする</button>
+            <button class="item-delete-btn bg-red-600 text-white text-xs px-3 py-2 rounded whitespace-nowrap hover:bg-red-700" data-item-id="${escapeHtml(r.reported_item_id)}"><i class="fa-solid fa-trash"></i> 対象アイテムを強制削除</button>
+          </div>
+        </div>
+        `;
+      }).join("");
+
+      wrap.querySelectorAll(".report-resolve-btn, .report-reject-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          await updateReportStatus(btn.getAttribute("data-id"), btn.getAttribute("data-status"));
+        });
+      });
+      wrap.querySelectorAll(".item-delete-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (!confirm("対象アイテムを削除します。この操作は取り消せません。よろしいですか？")) return;
+          await deleteItem(btn.getAttribute("data-item-id"));
+        });
+      });
+      
+      // チャット閲覧ボタンのイベント
+      wrap.querySelectorAll(".report-chat-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          window.openAdminChatModal(btn.getAttribute("data-trade-id"));
+        });
+      });
+    }
+
+    async function updateReportStatus(reportId, status) {
+      try {
+        const res = await fetchWithAuth(`/admin/reports/${reportId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status }),
+        });
+        if (!res.ok) throw new Error("通報ステータスの更新に失敗しました");
+        await loadReports();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function deleteItem(itemId) {
+      try {
+        const res = await fetchWithAuth(`/admin/items/${itemId}`, { method: "DELETE" });
+        if (!res.ok) {
+          const body = await res.json().catch(() => null);
+          throw new Error(body?.detail || "アイテムの削除に失敗しました");
+        }
+        alert("アイテムを削除しました。");
+        await loadReports();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    // チャットモーダルのグローバル制御
+    window.closeAdminChatModal = function() {
+      document.getElementById("chat-modal").classList.add("hidden");
+      document.getElementById("chat-modal").classList.remove("flex");
+    };
+
+    window.openAdminChatModal = async function(tradeId) {
+      const modal = document.getElementById("chat-modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+      
+      const wrap = document.getElementById("admin-chat-messages");
+      wrap.innerHTML = '<div class="text-center text-gray-500 py-10">読み込み中...</div>';
+      
+      try {
+        const res = await fetchWithAuth(`/admin/trades/${tradeId}/messages`);
+        if (!res.ok) {
+          const body = await res.json().catch(()=>null);
+          throw new Error(body?.detail || "チャットログの取得に権限がないか、失敗しました");
+        }
+        const msgs = await res.json();
+        
+        if (!msgs.length) {
+          wrap.innerHTML = '<div class="text-center text-gray-500 py-10">チャットのやり取りはまだありません。</div>';
+          return;
+        }
+        
+        wrap.innerHTML = msgs.map(m => {
+          const timeStr = new Date(m.sent_at).toLocaleString("ja-JP", { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' });
+          return `
+            <div class="bg-white p-3 rounded-lg border shadow-sm">
+              <div class="flex justify-between items-center text-xs text-gray-500 mb-2 border-b pb-1">
+                <span class="font-bold text-gray-800"><i class="fa-solid fa-user text-gray-400"></i> ${escapeHtml(m.sender_name || m.sender_id)}</span>
+                <span>${timeStr}</span>
+              </div>
+              <div class="whitespace-pre-wrap text-gray-800 text-base">${escapeHtml(m.text)}</div>
+            </div>
+          `;
+        }).join("");
+        
+        // スクロールを一番下へ
+        wrap.scrollTop = wrap.scrollHeight;
+      } catch (err) {
+        wrap.innerHTML = `<div class="text-center text-red-500 py-10">${escapeHtml(err.message)}</div>`;
+      }
+    };
+
+
+    // ==========================================
+    // ユーザー管理
+    // ==========================================
+    async function loadUsers() {
+      const tbody = document.getElementById("users-list");
+      tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-6 text-center text-gray-400">読み込み中...</td></tr>';
+      try {
+        const res = await fetchWithAuth("/admin/users");
+        if (!res.ok) throw new Error("ユーザー一覧の取得に失敗しました");
+        const users = await res.json();
+        renderUsers(users);
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-red-500">${escapeHtml(err.message)}</td></tr>`;
+      }
+    }
+
+    function renderUsers(users) {
+      const tbody = document.getElementById("users-list");
+      if (!users.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-6 text-center text-gray-400">ユーザーがいません。</td></tr>';
+        return;
+      }
+      tbody.innerHTML = users.map((u) => `
+        <tr class="border-t hover:bg-gray-50 transition-colors">
+          <td class="px-4 py-3 font-medium">${escapeHtml(u.name)}</td>
+          <td class="px-4 py-3 text-gray-500">${escapeHtml(u.prefecture)}</td>
+          <td class="px-4 py-3">${u.is_admin ? '<span class="text-xs px-2 py-1 rounded-sm bg-purple-100 text-purple-800 font-bold border border-purple-200">管理者</span>' : '<span class="text-xs text-gray-400">一般</span>'}</td>
+          <td class="px-4 py-3">${u.is_banned ? '<span class="text-xs px-2 py-1 rounded-sm bg-red-100 text-red-700 font-bold border border-red-200">停止中</span>' : '<span class="text-xs px-2 py-1 rounded-sm bg-green-100 text-green-700 border border-green-200">有効</span>'}</td>
+          <td class="px-4 py-3">
+            ${u.is_admin ? '<span class="text-xs text-gray-400">操作不可</span>' : `<button class="ban-toggle-btn text-xs px-3 py-1.5 rounded shadow-sm ${u.is_banned ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-red-600 text-white hover:bg-red-700'}" data-id="${escapeHtml(u.id)}">${u.is_banned ? 'BAN解除' : 'BANする'}</button>`}
+          </td>
+        </tr>
+      `).join("");
+
+      tbody.querySelectorAll(".ban-toggle-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (!confirm("このユーザーのBAN状態を切り替えます。よろしいですか？")) return;
+          try {
+            const res = await fetchWithAuth(`/admin/users/${btn.getAttribute("data-id")}/ban`, { method: "PATCH" });
+            if (!res.ok) throw new Error("BAN状態の更新に失敗しました");
+            await loadUsers();
+          } catch (err) {
+            alert(err.message);
+          }
+        });
+      });
+    }
+
+    // ==========================================
+    // 【New】お知らせ配信
+    // ==========================================
+    document.getElementById("notif-submit-btn").addEventListener("click", async () => {
+      const titleInput = document.getElementById("notif-title");
+      const msgInput = document.getElementById("notif-message");
+      const btn = document.getElementById("notif-submit-btn");
+      
+      const title = titleInput.value.trim();
+      const message = msgInput.value.trim();
+      
+      if (!title || !message) {
+        alert("タイトルと本文を入力してください。");
+        return;
+      }
+      if (!confirm("全ユーザーにプッシュ通知を送信します。よろしいですか？")) return;
+      
+      btn.disabled = true;
+      btn.textContent = "送信中...";
+      
+      try {
+        const res = await fetchWithAuth("/admin/notifications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, message })
+        });
+        if (!res.ok) throw new Error("送信に失敗しました");
+        
+        alert("お知らせを一括送信しました！\n※ユーザーが次回アプリを開いた際に通知センターへ表示されます。");
+        titleInput.value = "";
+        msgInput.value = "";
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "全ユーザーに一括送信する";
+      }
+    });
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+node_modules
+.next
+.env
+.venv
+gacha-exchange-firebase-adminsdk-fbsvc-36d3c83473.json
+gachagacha.db
+__pycache__/

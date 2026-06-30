@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LZ4G82VWVH"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-LZ4G82VWVH');
+</script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ガチャ交換広場</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <meta name="description" content="ガチャ交換広場 - ガチャ景品の交換プラットフォーム" />
+  <style>
+    .hidden { display: none !important; }
+    .flex { display: flex !important; }
+    .items-center { align-items: center !important; }
+    .justify-center { justify-content: center !important; }
+    .bg-black\/60 { background-color: rgba(0, 0, 0, 0.6) !important; }
+  </style>
+</head>
+<body class="bg-gradient-to-b from-yellow-50 to-red-50 min-h-screen flex flex-col">
+  <header class="bg-gradient-to-r from-yellow-300 via-yellow-400 to-red-400 text-red-900 p-4 shadow-md">
+    <div class="max-w-xl mx-auto flex items-center justify-between">
+      <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight">ガチャ交換広場</h1>
+      
+      <div class="flex items-center gap-2 sm:gap-4 text-sm">
+        <button id="notif-btn" class="relative p-2 rounded-full hover:bg-white/30 text-red-900">
+          <i class="fa-solid fa-bell text-lg"></i>
+          <span id="notif-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 leading-none"></span>
+        </button>
+        
+        <div id="auth-guest" class="flex items-center gap-2">
+          <button id="login-btn" type="button" onclick="openLoginModal()" class="px-3 py-2 rounded-full bg-white/90 text-red-900 hover:bg-white text-xs sm:text-sm">ログイン</button>
+        </div>
+        <div id="auth-user" class="hidden items-center gap-2">
+          <span id="auth-name" class="font-semibold text-white hidden sm:block"></span>
+          <button id="logout-btn" class="px-3 py-2 rounded-full bg-white/90 text-red-900 hover:bg-white text-xs sm:text-sm">ログアウト</button>
+        </div>
+      </div>
+    </div>
+  </header>
+      
+
+  <section class="max-w-xl mx-auto w-full px-4 mt-4">
+    <form id="search-form" class="flex flex-col sm:flex-row items-stretch gap-2">
+      <div class="flex flex-col sm:flex-row gap-2 flex-1 w-full">
+        <div class="flex-1 relative min-w-0">
+          <label for="q" class="sr-only">検索</label>
+          <input id="q" type="search" placeholder="シリーズ名やキャラクター名で検索" class="w-full rounded-full border border-yellow-300 bg-white/90 py-3 px-4 pl-10 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400" />
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-yellow-500"><i class="fa-solid fa-magnifying-glass"></i></span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <label for="search-prefecture" class="sr-only">都道府県</label>
+          <select id="search-prefecture" class="w-full rounded-full border border-yellow-300 bg-white/90 py-3 px-4 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
+            <option value="">すべての地域</option>
+            <option value="東京都">東京都</option>
+            <option value="神奈川県">神奈川県</option>
+            <option value="埼玉県">埼玉県</option>
+            <option value="千葉県">千葉県</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-full shadow hover:bg-red-600">検索</button>
+    </form>
+  </section>
+
+  <main id="home-area" class="flex-1 max-w-xl mx-auto w-full px-4 mt-4 pb-24">
+    <div class="mb-6">
+      <h2 class="text-xl font-bold text-gray-800 mb-2">ガチャ交換広場へようこそ！</h2>
+      <p class="text-sm text-gray-600 mb-4 leading-relaxed">
+        ダブってしまったカプセルトイ（ガチャガチャ）やブラインドグッズを、全国のユーザーと安全に交換できるCtoCプラットフォームです。手渡しや郵送など、希望の交換方法を選んで、欲しかったあのキャラクターを手に入れましょう。会員登録・出品はすべて無料です。
+      </p>
+
+      <div class="w-full bg-gray-100 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center p-6 rounded-lg text-gray-400 text-sm my-4">
+        <i class="fa-brands fa-google mb-1 text-lg"></i>
+        <span>Google AdSense 広告表示エリア (レスポンシブ)</span>
+      </div>
+    </div>
+    <div id="home-promotions" class="space-y-5 mb-6"></div>
+    <h2 class="text-lg font-semibold mb-3">出品中のアイテム</h2>
+    <div id="items-grid" class="grid grid-cols-2 gap-3">
+      <noscript class="col-span-2 text-center text-sm text-gray-500">JavaScriptを有効にするとアイテム一覧が表示されます。</noscript>
+    </div>
+    <div id="pagination-controls" class="mt-4 flex items-center justify-center gap-4 rounded-full border border-gray-200 bg-white px-4 py-3 shadow-sm hidden">
+      <button id="pagination-prev" type="button" class="px-3 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50" onclick="window.changePage(-1)">&lt;</button>
+      <div id="pagination-label" class="text-sm text-gray-600">1 / 1 ページ</div>
+      <button id="pagination-next" type="button" class="px-3 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50" onclick="window.changePage(1)">&gt;</button>
+    </div>
+
+    <div class="mt-8 border-t border-gray-200 pt-4 space-y-2 text-center">
+      <a href="./terms.html" class="block text-xs text-gray-500 hover:text-gray-800">利用規約</a>
+      <a href="./privacy.html" class="block text-xs text-gray-500 hover:text-gray-800">プライバシーポリシー</a>
+    </div>
+  </main>
+
+  <main id="chat-area" class="hidden flex-1 max-w-xl mx-auto w-full px-4 mt-4 pb-24">
+    <div class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-semibold">チャット</h2>
+          <p class="text-sm text-gray-500">承認済みの取引チャット一覧を表示します。</p>
+        </div>
+      </div>
+      <div class="bg-white rounded-3xl shadow-sm p-4">
+        <h3 class="text-sm font-semibold mb-3">受信チャット</h3>
+        <div id="chat-incoming-list" class="space-y-3">
+          <div class="text-sm text-gray-500">読み込み中...</div>
+        </div>
+      </div>
+      <div class="bg-white rounded-3xl shadow-sm p-4">
+        <h3 class="text-sm font-semibold mb-3">送信チャット</h3>
+        <div id="chat-outgoing-list" class="space-y-3">
+          <div class="text-sm text-gray-500">読み込み中...</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <main id="zukan-area" class="hidden flex-1 max-w-xl mx-auto w-full px-4 mt-4 pb-24">
+    <div class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-semibold">ガチャ図鑑</h2>
+          <p class="text-sm text-gray-500">シリーズごとに最新情報や出品をチェック</p>
+        </div>
+      </div>
+      <div id="zukan-list" class="grid grid-cols-1 gap-3"></div>
+    </div>
+  </main>
+
+  <main id="mypage-area" class="hidden flex-1 max-w-xl mx-auto w-full px-4 mt-4 pb-24">
+    <div class="bg-white rounded-3xl shadow-sm p-4">
+      <div class="flex items-center gap-4">
+        <div class="relative">
+          <div id="mypage-avatar" class="w-16 h-16 rounded-full bg-gradient-to-br from-red-400 to-yellow-400 flex items-center justify-center text-white text-2xl font-bold cursor-pointer overflow-hidden" onclick="window.openAvatarPicker()">
+            <img id="mypage-avatar-img" src="" alt="プロフィール画像" class="hidden object-cover w-full h-full" />
+            <span id="mypage-avatar-letter">U</span>
+          </div>
+          <input id="avatar-file-input" type="file" accept="image/*" class="hidden" onchange="window.onAvatarFileChange()" />
+        </div>
+        <div class="flex-1">
+          <div id="mypage-name" class="text-xl font-semibold">ゲスト</div>
+          <div id="mypage-pref" class="text-sm text-gray-500">-</div>
+          <div class="text-xs text-gray-500 mt-1">アイコンをクリックして画像を変更できます</div>
+          <button id="edit-profile-btn" type="button" class="mt-3 inline-flex items-center gap-2 rounded-full border border-red-500 px-3 py-2 text-sm text-red-600 hover:bg-red-50">プロフィールを編集する</button>
+          <button id="open-withdraw-btn" type="button" class="mt-2 inline-flex items-center gap-2 rounded-full bg-red-600 text-white px-3 py-2 text-sm font-semibold hover:bg-red-700"><i class="fa-solid fa-user-slash"></i> 退会する</button>
+          <div class="mt-2 text-gray-500">
+            <span id="mypage-rating-label" class="font-semibold">評価なし</span>
+            <span id="mypage-rating-count" class="ml-2 text-xs"></span>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 bg-white p-3 rounded-lg">
+        <h3 class="text-sm font-semibold mb-2">受信した交換リクエスト</h3>
+        <div id="incoming-trades-list" class="space-y-2">
+          <div class="text-sm text-gray-500">読み込み中...</div>
+        </div>
+      </div>
+      <div class="mt-4 bg-white p-3 rounded-lg">
+        <h3 class="text-sm font-semibold mb-2">送信した交換リクエスト</h3>
+        <div id="outgoing-trades-list" class="space-y-2">
+          <div class="text-sm text-gray-500">読み込み中...</div>
+        </div>
+      </div>
+      <div class="mt-5 border-b">
+        <div class="flex text-sm font-semibold">
+          <button id="mypage-tab-available" type="button" class="flex-1 py-3 border-b-2 border-red-500 text-red-600">出品中</button>
+          <button id="mypage-tab-trading" type="button" class="flex-1 py-3 border-b-2 border-transparent text-gray-600 hover:text-red-600">交換中</button>
+          <button id="mypage-tab-completed" type="button" class="flex-1 py-3 border-b-2 border-transparent text-gray-600 hover:text-red-600">完了</button>
+        </div>
+      </div>
+      <div id="mypage-list" class="mt-4 space-y-3">
+        <div class="text-center text-gray-500">マイページを開くと、自分のアイテムがここに表示されます。</div>
+      </div>
+    </div>
+  </main>
+
+  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t shadow-md">
+    <div class="max-w-xl mx-auto grid grid-cols-5">
+      <a href="#" id="nav-home" class="py-2 text-center text-sm">
+        <div class="text-2xl text-yellow-500"><i class="fa-solid fa-house"></i></div>
+        <div class="mt-1">ホーム</div>
+      </a>
+      <a href="#" id="nav-chat" class="py-2 text-center text-sm">
+        <div class="text-2xl text-gray-700"><i class="fa-solid fa-comment-dots"></i></div>
+        <div class="mt-1">チャット</div>
+      </a>
+      <a href="#" id="nav-list" class="py-2 text-center text-sm -mt-2">
+        <div class="inline-block bg-red-500 text-white p-3 rounded-full shadow-lg transform -translate-y-2"><i class="fa-solid fa-plus"></i></div>
+        <div class="mt-1">出品</div>
+      </a>
+      <a href="#" id="nav-zukan" class="py-2 text-center text-sm">
+        <div class="text-2xl text-gray-700"><i class="fa-solid fa-book"></i></div>
+        <div class="mt-1">図鑑</div>
+      </a>
+      <a href="#" id="nav-mypage" class="py-2 text-center text-sm">
+        <div class="text-2xl text-gray-700"><i class="fa-solid fa-user"></i></div>
+        <div class="mt-1">マイページ</div>
+      </a>
+    </div>
+  </nav>
+
+  <!-- 通知センタードロワー -->
+  <div id="notif-overlay" class="hidden fixed inset-0 z-40 bg-black/40" onclick="window.closeNotifDrawer()"></div>
+  <aside id="notif-drawer" class="fixed top-0 right-0 bottom-0 z-50 w-80 max-w-[90vw] bg-white shadow-2xl flex flex-col translate-x-full transition-transform duration-300 ease-in-out">
+    <div class="flex items-center justify-between p-4 border-b bg-gradient-to-r from-yellow-300 to-red-400">
+      <h2 class="text-base font-bold text-red-900">通知センター</h2>
+      <div class="flex items-center gap-2">
+        <button id="notif-read-all-btn" onclick="window.markAllRead()" class="text-xs text-red-900 underline hover:no-underline">すべて既読</button>
+        <button onclick="window.closeNotifDrawer()" class="text-red-900 hover:text-red-700 p-1"><i class="fa-solid fa-xmark fa-lg"></i></button>
+      </div>
+    </div>
+    <div class="flex-1 overflow-y-auto">
+      <!-- 全体通知セクション -->
+      <div class="px-4 pt-4 pb-1">
+        <div class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+          <i class="fa-solid fa-bullhorn text-yellow-500"></i> お知らせ
+        </div>
+        <div id="notif-global-list" class="space-y-2">
+          <div class="text-sm text-gray-400 py-2">読み込み中...</div>
+        </div>
+      </div>
+      <div class="border-t mx-4 my-3"></div>
+      <!-- 個人通知セクション -->
+      <div class="px-4 pb-4">
+        <div class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+          <i class="fa-solid fa-user-check text-red-400"></i> あなたへの通知
+        </div>
+        <div id="notif-personal-list" class="space-y-2">
+          <div class="text-sm text-gray-400 py-2">ログインすると表示されます</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div id="item-modal" class="hidden fixed inset-0 z-50 items-center justify-center">
+    <div id="modal-overlay" class="absolute inset-0 bg-black/60"></div>
+    <div class="relative bg-white rounded-lg shadow-xl max-w-md w-[90%] mx-auto z-10 overflow-hidden">
+      <button id="item-report-button" type="button" class="absolute top-3 left-3 text-sm text-red-600 hover:text-red-800 bg-red-50 px-3 py-1 rounded-full">🚩 通報 / ブロック</button>
+      <button id="modal-close" type="button" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 bg-white hover:bg-gray-100 rounded-full p-2 transition-colors">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <div class="p-4">
+        <div class="w-full h-56 bg-gray-100 flex items-center justify-center overflow-hidden">
+          <img id="modal-image" src="" alt="" class="object-cover w-full h-full" />
+        </div>
+        <div class="mt-3">
+          <div class="text-sm text-gray-500" id="modal-series">シリーズ: -</div>
+          <div class="text-lg font-semibold" id="modal-character">キャラクター: -</div>
+          <div class="mt-3 flex items-center justify-between">
+            <span id="modal-method" class="text-sm px-2 py-1 rounded-full bg-green-100 text-green-800">手渡し</span>
+            <button id="modal-apply" class="bg-red-500 text-white px-4 py-2 rounded-full">交換を申し込む</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="report-modal" class="hidden fixed inset-0 z-50 items-center justify-center">
+    <div class="absolute inset-0 bg-black/60"></div>
+    <div class="relative bg-white rounded-lg shadow-xl max-w-lg w-[90%] mx-auto z-10 overflow-hidden">
+      <button id="report-modal-close" type="button" onclick="window.closeReportModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-800"><i class="fa-solid fa-xmark fa-lg"></i></button>
+      <div class="p-5">
+        <h3 class="text-lg font-semibold mb-3">通報する</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">通報理由</label>
+            <select id="report-reason" class="mt-2 w-full border rounded-lg px-3 py-2">
+              <option value="スパム">スパム</option>
+              <option value="不適切な画像">不適切な画像</option>
+              <option value="虚偽の出品情報">虚偽の出品情報</option>
+              <option value="その他">その他</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">詳細（任意）</label>
+            <textarea id="report-details" rows="4" class="mt-2 w-full border rounded-lg px-3 py-2" placeholder="問題点の詳細を入力してください（任意）"></textarea>
+          </div>
+          <div class="flex items-center gap-3">
+            <button id="report-submit" type="button" onclick="window.submitReport()" class="flex-1 bg-red-500 text-white px-4 py-3 rounded-full">送信する</button>
+            <button id="report-cancel" type="button" onclick="window.closeReportModal()" class="flex-1 border border-gray-300 text-gray-700 px-4 py-3 rounded-full">キャンセル</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="rating-modal" class="hidden fixed inset-0 z-50 items-center justify-center">
+    <div class="absolute inset-0 bg-black/60"></div>
+    <div class="relative bg-white rounded-lg shadow-xl max-w-lg w-[90%] mx-auto z-10 overflow-hidden">
+      <button id="rating-modal-close" type="button" onclick="window.closeRatingModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-800"><i class="fa-solid fa-xmark fa-lg"></i></button>
+      <div class="p-5">
+        <h3 class="text-lg font-semibold mb-3">取引を評価する</h3>
+        <p class="text-sm text-gray-500 mb-4">取引が完了したら星評価とコメントを投稿できます。</p>
+        <div class="space-y-4">
+          <div>
+            <div class="flex items-center gap-1" id="rating-stars">
+              <button type="button" class="rating-star text-3xl text-gray-300" data-score="1">★</button>
+              <button type="button" class="rating-star text-3xl text-gray-300" data-score="2">★</button>
+              <button type="button" class="rating-star text-3xl text-gray-300" data-score="3">★</button>
+              <button type="button" class="rating-star text-3xl text-gray-300" data-score="4">★</button>
+              <button type="button" class="rating-star text-3xl text-gray-300" data-score="5">★</button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">コメント（任意）</label>
+            <textarea id="rating-comment" rows="4" class="mt-2 w-full border rounded-lg px-3 py-2" placeholder="取引相手へのコメントを入力してください。"></textarea>
+          </div>
+          <div class="flex items-center gap-3">
+            <button id="rating-submit" type="button" onclick="window.submitRating()" class="flex-1 bg-red-500 text-white px-4 py-3 rounded-full">評価を送信する</button>
+            <button type="button" onclick="window.closeRatingModal()" class="flex-1 border border-gray-300 text-gray-700 px-4 py-3 rounded-full">キャンセル</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="list-modal" class="hidden fixed inset-0 z-50 items-center justify-center">
+    <div id="list-overlay" class="absolute inset-0 bg-black/60"></div>
+    <div class="relative bg-white rounded-lg shadow-xl max-w-md w-[90%] mx-auto z-10 overflow-hidden">
+      <button id="list-close" class="absolute top-3 right-3 text-gray-600 hover:text-gray-800"><i class="fa-solid fa-xmark fa-lg"></i></button>
+      <div class="p-4 h-[80vh] overflow-y-auto">
+        <h3 id="list-modal-title" class="text-lg font-semibold mb-3">新しく出品する</h3>
+        <div class="space-y-3">
+          <div><label class="text-sm text-gray-600">シリーズ名</label><input id="list-series" type="text" class="w-full mt-1 border rounded-md px-3 py-2" /></div>
+          <div><label class="text-sm text-gray-600">キャラクター名</label><input id="list-character" type="text" class="w-full mt-1 border rounded-md px-3 py-2" /></div>
+          <div>
+            <label class="text-sm text-gray-600">交換方法</label>
+            <select id="list-method" class="w-full mt-1 border rounded-md px-3 py-2">
+              <option value="手渡し">手渡し</option>
+              <option value="郵送">郵送</option>
+            </select>
+          </div>
+          <div id="list-place-wrap" class="hidden">
+            <label class="text-sm text-gray-600">手渡し場所</label>
+            <input id="list-place" type="text" class="w-full mt-1 border rounded-md px-3 py-2" />
+          </div>
+          
+          <div>
+            <label class="text-sm text-gray-600">商品の状態 <span class="text-red-500">*</span></label>
+            <select id="list-condition" class="w-full mt-1 border rounded-md px-3 py-2" required>
+              <option value="" disabled selected>選択してください</option>
+              <option value="未開封">未開封</option>
+              <option value="未使用（開封済み）">未使用（開封済み）</option>
+              <option value="汚れ傷なし">汚れ傷なし</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-sm text-gray-600">アイテムの写真 <span class="text-red-500">*</span></label>
+            <div class="mt-2">
+              <label class="flex flex-col items-center p-4 border-2 border-dashed rounded cursor-pointer hover:bg-gray-50">
+                <div class="w-full h-32 bg-gray-50 flex items-center justify-center overflow-hidden">
+                  <img id="list-preview" class="object-cover w-full h-full hidden" src="" alt="" />
+                </div>
+                <input id="list-file" type="file" accept="image/*" class="sr-only" onchange="const f = this.files[0]; if(f){ const r = new FileReader(); r.onload = e => { const img = document.getElementById('list-preview'); img.src = e.target.result; img.classList.remove('hidden'); }; r.readAsDataURL(f); }" />
+                <div class="text-sm mt-2 text-gray-500">写真をアップロード</div>
+              </label>
+            </div>
+          </div>
+          <div class="flex items-center justify-between gap-2 mt-4">
+            <button id="list-submit" class="flex-1 bg-red-500 text-white px-4 py-3 rounded-full">出品する</button>
+            <button id="list-cancel" class="flex-1 bg-gray-200 text-gray-700 px-4 py-3 rounded-full">キャンセル</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="edit-item-modal" class="hidden fixed inset-0 z-50 items-center justify-center">
+    <div class="absolute inset-0 bg-black/60"></div>
+    <div class="relative bg-white rounded-lg shadow-xl max-w-md w-[90%] mx-auto z-10 overflow-hidden">
+      <button id="edit-item-close" onclick="window.closeEditItemModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-800"><i class="fa-solid fa-xmark fa-lg"></i></button>
+      <div class="p-4 h-[80vh] overflow-y-auto">
+        <h3 class="text-lg font-semibold mb-3">アイテム情報を編集</h3>
+        <div class="space-y-3">
+          <div><label class="text-sm text-gray-600">シリーズ名</label><input id="edit-series" type="text" class="w-full mt-1 border rounded-md px-3 py-2" /></div>
+          <div><label class="text-sm text-gray-600">キャラクター名</label><input id="edit-character" type="text" class="w-full mt-1 border rounded-md px-3 py-2" /></div>
+          <div>
+            <label class="text-sm text-gray-600">交換方法</label>
+            <select id="edit-method" onchange="window.toggleEditPlaceInput()" class="w-full mt-1 border rounded-md px-3 py-2">
+              <option value="手渡し">手渡し</option>
+              <option value="郵送">郵送</option>
+            </select>
+          </div>
+          <div id="edit-place-wrap" class="hidden">
+            <label class="text-sm text-gray-600">手渡し場所</label>
+            <input id="edit-place" type="text" class="w-full mt-1 border rounded-md px-3 py-2" />
+          </div>
+          <div class="flex items-center justify-between gap-2 mt-4">
+            <button id="edit-item-submit" onclick="window.submitEditItem()" class="flex-1 bg-red-500 text-white px-4 py-3 rounded-full">保存する</button>
+            <button id="edit-item-cancel" onclick="window.closeEditItemModal()" class="flex-1 bg-gray-200 text-gray-700 px-4 py-3 rounded-full">キャンセル</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="proposal-modal" class="hidden fixed inset-0 z-50 items-center justify-center">
+    <div id="proposal-overlay" class="absolute inset-0 bg-black/60"></div>
+    <div class="relative bg-white rounded-lg shadow-xl max-w-md w-[90%] mx-auto z-10 overflow-hidden flex flex-col max-h-[90vh]">
+      <button id="proposal-close" class="absolute top-3 right-3 text-gray-600 hover:text-gray-800 z-20 bg-white rounded-full p-1"><i class="fa-solid fa-xmark fa-lg"></i></button>
+      <div class="p-4 border-b flex-shrink-0">
+        <h3 class="text-lg font-semibold">交換提案を作成</h3>
+        <p class="text-sm text-gray-600" id="proposal-target-text">対象アイテム: -</p>
+      </div>
+      <div class="p-4 overflow-y-auto flex-1">
+        <div class="space-y-4">
+          <div class="flex gap-4">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="proposal_type" value="existing" checked onchange="window.toggleProposalType()">
+              <span class="text-sm font-medium">自分の出品から選ぶ</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="proposal_type" value="new" onchange="window.toggleProposalType()">
+              <span class="text-sm font-medium">新しく登録する</span>
+            </label>
+          </div>
+
+          <div id="proposal-existing-area" class="space-y-3">
+            <select id="proposal-selected-item" class="w-full border rounded px-3 py-2 text-sm" onchange="window.updateProposalPreview()"></select>
+            <div id="proposal-preview-wrap" class="hidden w-full h-40 bg-gray-100 flex items-center justify-center rounded-lg overflow-hidden border">
+              <img id="proposal-preview-img" src="" class="object-cover w-full h-full">
+            </div>
+          </div>
+
+          <div id="proposal-new-area" class="hidden space-y-3 border-t pt-3">
+            <div><label class="text-xs text-gray-600">シリーズ名 <span class="text-red-500">*</span></label><input id="prop-new-series" type="text" class="w-full mt-1 border rounded px-3 py-2 text-sm" /></div>
+            <div><label class="text-xs text-gray-600">キャラクター名 <span class="text-red-500">*</span></label><input id="prop-new-character" type="text" class="w-full mt-1 border rounded px-3 py-2 text-sm" /></div>
+            <div><label class="text-xs text-gray-600">状態 <span class="text-red-500">*</span></label>
+              <select id="prop-new-condition" class="w-full mt-1 border rounded px-3 py-2 text-sm">
+                <option value="" disabled selected>選択</option>
+                <option value="未開封">未開封</option>
+                <option value="未使用（開封済み）">未使用（開封済み）</option>
+                <option value="汚れ傷なし">汚れ傷なし</option>
+              </select>
+            </div>
+            <div><label class="text-xs text-gray-600">交換方法 <span class="text-red-500">*</span></label>
+              <select id="prop-new-method" class="w-full mt-1 border rounded px-3 py-2 text-sm">
+                <option value="手渡し">手渡し</option>
+                <option value="郵送">郵送</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs text-gray-600">写真 (1枚) <span class="text-red-500">*</span></label>
+              <div class="mt-1">
+                <label class="flex flex-col items-center p-3 border-2 border-dashed rounded cursor-pointer hover:bg-gray-50">
+                  <div class="w-full h-24 bg-gray-50 flex items-center justify-center overflow-hidden">
+                    <img id="prop-new-preview" class="object-cover w-full h-full hidden" src="" alt="" />
+                  </div>
+                  <input id="prop-new-file" type="file" accept="image/*" class="sr-only" onchange="window.handleImagePreview(this, 'prop-new-preview')" />
+                  <div class="text-xs mt-2 text-gray-500">写真をタップして選択</div>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="p-4 border-t flex items-center gap-2 flex-shrink-0">
+        <button id="proposal-submit" class="flex-1 bg-red-500 text-white px-4 py-3 rounded-full font-medium">提案する</button>
+        <button id="proposal-cancel" class="flex-1 bg-gray-200 text-gray-700 px-4 py-3 rounded-full font-medium">キャンセル</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="chat-modal" class="hidden fixed inset-0 z-50 items-center justify-center">
+    <div class="absolute inset-0 bg-black/60"></div>
+    <div class="relative bg-white rounded-lg shadow-xl max-w-md w-[95%] mx-auto z-10 overflow-hidden h-[80vh] flex flex-col">
+      <div class="p-3 border-b flex items-center justify-between">
+        <div id="chat-title" class="font-semibold">チャット</div>
+        <button id="chat-close" class="text-gray-600 hover:text-gray-800"><i class="fa-solid fa-xmark fa-lg"></i></button>
+      </div>
+      <div id="chat-messages" class="flex-1 overflow-y-auto p-3 space-y-3 bg-gray-50"></div>
+      <div class="p-3 border-t flex gap-2">
+        <button id="chat-complete" class="bg-green-600 text-white px-4 py-2 rounded">取引を完了する</button>
+        <input id="chat-input" type="text" class="flex-1 border rounded px-3 py-2" placeholder="メッセージを入力" />
+        <button id="chat-send" class="bg-blue-500 text-white px-4 py-2 rounded">送信</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="profile-modal" class="hidden fixed inset-0 z-50 items-center justify-center">
+    <div class="absolute inset-0 bg-black/60"></div>
+    <div class="relative bg-white rounded-lg shadow-xl max-w-md w-[90%] mx-auto z-10 overflow-hidden">
+      <button id="profile-close" class="absolute top-3 right-3 text-gray-600 hover:text-gray-800"><i class="fa-solid fa-xmark fa-lg"></i></button>
+      <div class="p-4">
+        <h3 class="text-lg font-semibold mb-3">プロフィールを編集</h3>
+        <div class="space-y-3">
+          <div>
+            <label class="text-sm text-gray-600">名前</label>
+            <input id="profile-name" type="text" class="w-full mt-1 border rounded-md px-3 py-2" />
+          </div>
+          <div>
+            <label class="text-sm text-gray-600">都道府県</label>
+            <select id="profile-prefecture" class="w-full mt-1 border rounded-md px-3 py-2">
+              <option value="">選択してください</option>
+              <option value="東京都">東京都</option>
+              <option value="神奈川県">神奈川県</option>
+              <option value="埼玉県">埼玉県</option>
+              <option value="千葉県">千葉県</option>
+              <option value="北海道">北海道</option>
+              <option value="大阪府">大阪府</option>
+              <option value="福岡県">福岡県</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-2 mt-4">
+            <button id="profile-save" class="flex-1 bg-red-500 text-white px-4 py-3 rounded-full">保存する</button>
+            <button id="profile-cancel" class="flex-1 bg-gray-200 text-gray-700 px-4 py-3 rounded-full">キャンセル</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="withdraw-modal" class="hidden fixed inset-0 z-50 items-center justify-center">
+    <div class="absolute inset-0 bg-black/60"></div>
+    <div class="relative bg-white rounded-lg shadow-xl max-w-md w-[90%] mx-auto z-10 overflow-hidden">
+      <button id="withdraw-close" class="absolute top-3 right-3 text-gray-600 hover:text-gray-800"><i class="fa-solid fa-xmark fa-lg"></i></button>
+      <div class="p-4">
+        <h3 class="text-lg font-semibold mb-3 text-red-600"><i class="fa-solid fa-triangle-exclamation"></i> 退会の確認</h3>
+        <p class="text-sm text-gray-700 leading-relaxed">
+          本当に退会しますか？この操作は取り消せません。<br>
+          出品中・提案中のアイテムは削除され、過去の取引相手には「退会済みユーザー」と表示されます。
+        </p>
+        <div class="flex items-center gap-2 mt-5">
+          <button id="withdraw-confirm" class="flex-1 bg-red-600 text-white px-4 py-3 rounded-full font-semibold hover:bg-red-700">退会を実行する</button>
+          <button id="withdraw-cancel" class="flex-1 bg-gray-200 text-gray-700 px-4 py-3 rounded-full">キャンセル</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="login-modal" class="hidden fixed inset-0 z-50 items-center justify-center">
+    <div id="login-overlay" class="absolute inset-0 bg-black/60" onclick="closeLoginModal()"></div>
+    <div class="relative bg-white rounded-lg shadow-xl max-w-md w-[90%] mx-auto z-10 overflow-hidden text-center p-6">
+      <button onclick="closeLoginModal()" class="absolute top-3 right-3 text-gray-600 hover:text-gray-800"><i class="fa-solid fa-xmark fa-lg"></i></button>
+      <h3 class="text-lg font-semibold mb-6">ログイン / 登録</h3>
+      <div class="mb-4 text-left">
+        <label class="inline-flex items-start gap-3 text-sm text-gray-700 cursor-pointer">
+          <input id="login-agree-checkbox" type="checkbox" onchange="document.getElementById('login-google-btn').disabled = !this.checked; document.getElementById('login-google-btn').classList.toggle('opacity-50', !this.checked);" class="mt-1 h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer" />
+          <span>「<a href="terms.html" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">利用規約</a>」と「<a href="privacy.html" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">プライバシーポリシー</a>」に同意する</span>
+        </label>
+      </div>
+      <button id="login-google-btn" onclick="handleGoogleLogin()" disabled class="w-full inline-flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-600 px-4 py-3 rounded-full shadow-sm disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed transition-all opacity-50 font-bold hover:bg-gray-50">
+        <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Googleでログインしてはじめる
+      </button>
+    </div>
+  </div>
+
+<script type="module" src="./js/app.js"></script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447" integrity="sha512-57MDmcccJXYtNnH+ZiBwzC4jb2rvgVCEokYN+L/nLlmO8rfYT/gIpW2A569iJ/3b+0UEasghjuZH/ma3wIs/EQ==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>

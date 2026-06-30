@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+requests
+filetype
+python-dotenv
+firebase-admin
+python-multipart
+psycopg2-binary
