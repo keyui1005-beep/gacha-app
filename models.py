@@ -117,6 +117,14 @@ class Item(Base):
         lazy="selectin",
     )
 
+    # Itemに紐づく通報（Report）を取得できるようにする。Itemが削除されたら関連するReportも削除する。
+    reports: Mapped[list[Report]] = relationship(
+        "Report",
+        back_populates="reported_item",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
 
 class Trade(Base):
     """ユーザー間のアイテム交換申請情報を保存するテーブル。"""
@@ -201,7 +209,7 @@ class Report(Base):
     )
 
     reporter: Mapped[User] = relationship("User")
-    reported_item: Mapped[Item] = relationship("Item")
+    reported_item: Mapped[Item] = relationship("Item", back_populates="reports")
 
 
 class Rating(Base):
